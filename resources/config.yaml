@@ -1,0 +1,10 @@
+lir:
+  num_of_orbit: 6
+  sat_per_orbit: 11
+  default_bloom_filter_length: 32
+  default_hash_seed: 18
+  default_number_of_hash_funcs: 5
+  abs_dir_of_projects: /home/zhf/Projects/lir/
+  relative_dir_of_frr: lir_emulator/resources/routing/frr
+  relative_dir_of_lir_identifiers: lir_emulator/resources/routing/lir/identifiers
+  relative_dir_of_lir_routes: lir_emulator/resources/routing/lir/routes
