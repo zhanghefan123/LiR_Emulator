@@ -1,17 +1,27 @@
+import os.path
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.append("../")
+import asyncio
+import loguru
+from enum import Enum
+from loguru import logger
 from PyInquirer import prompt
+from src.docker.satellite_manager import satellite_manager as smm
 from src.config import config_loader as clm
 from src.entities import logical_constellation as lcm
-from src.docker.container_manager import container_manager as cmm
 from src.routing.frr import frr_config_generator as fcgm
 from src.routing.lir import lir_config_generator as lcgm
 from src.routing.lir import lir_route_calculator as lrcm
-from enum import Enum
-import loguru
+from src.network import id_to_ip_mapping_generator as itimgm
 
 POSSIBLE_COMMANDS = [
     "create",
     "start",
-    "destroy"
+    "destroy",
+    "exit"
 ]
 
 QUESTION_FOR_COMMAND = [
@@ -39,7 +49,7 @@ class TopologyManager:
         self.topology_state = TopologyManager.TopologyState.NOT_CREATED
         self.logger = logger
         self.logical_constellation = lcm.LogicalConstellation(config_loader=config_loader)
-        self.container_manager = cmm.ContainerManager(docker_request_url=config_loader.docker_request_url)
+        self.satellite_manager = smm.SatelliteManager(config_loader=config_loader)
         self.frr_config_generator = fcgm.FrrConfigGenerator(satellites=self.logical_constellation.satellites,
                                                             generate_destination=f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_frr}")
         self.lir_identifiers_generator = lcgm.LirConfigGenerator(satellites=self.logical_constellation.satellites,
@@ -48,6 +58,8 @@ class TopologyManager:
                                                             lir_link_identifiers=self.logical_constellation.lir_link_identifiers,
                                                             map_from_source_dest_pair_to_lir_link_identifier=self.logical_constellation.map_from_source_dest_pair_to_lir_link_identifier,
                                                             generate_destination=f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_lir_routes}")
+        self.ip_to_id_mapping_generator = itimgm.IPtoIDGenerator(satellites=self.logical_constellation.satellites,
+                                                                 generate_destination=f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_id_to_ip_mapping}")
 
     def validate_command(self, command: str) -> (bool, str):
         """
@@ -60,26 +72,23 @@ class TopologyManager:
         result = True
         reason = None
         if self.topology_state == TopologyManager.TopologyState.NOT_CREATED:
-            if command == "create":
+            if command in ["create", "exit"]:
                 pass
-            elif command == "start":
-                reason = "topology not created"
-            elif command == "destroy":
+            elif command in ["start", "destroy"]:
+                result = False
                 reason = "topology not created"
         elif self.topology_state == TopologyManager.TopologyState.CREATED:
-            if (command == "start") or (command == "destroy"):
+            if command in ["start", "destroy"]:
                 pass
-            elif command == "created":
+            elif command in ["creat", "exit"]:
+                result = False
                 reason = "topology already created"
         elif self.topology_state == TopologyManager.TopologyState.STARTED:
             if command == "destroy":
                 pass
-            elif command == "create":
-                reason = "topology already started"
-            elif command == "start":
-                reason = "topology already started"
-            else:
+            elif command in ["create", "start", "exit"]:
                 result = False
+                reason = "topology already started"
         return result, reason
 
     def change_state(self, command: str):
@@ -110,12 +119,29 @@ class TopologyManager:
                 if selected_command == "create":
                     self.create_topology()
                 elif selected_command == "start":
-                    pass
+                    self.start_topology()
                 elif selected_command == "destroy":
-                    pass
+                    self.stop_topology()
+                    self.remove_topology()
                 self.change_state(command=selected_command)
             except Exception as e:
                 self.logger.error(e)
+
+    def generate_directories(self):
+        """
+        进行目录的生成
+        """
+        dirs = [
+            f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_frr}",
+            f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_lir_identifiers}",
+            f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_lir_routes}",
+            f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_id_to_ip_mapping}"
+        ]
+        for directory in dirs:
+            if os.path.exists(directory):
+                pass
+            else:
+                os.system(f"mkdir -p {directory}")
 
     def generate_config_files(self):
         """
@@ -123,10 +149,38 @@ class TopologyManager:
         """
         self.frr_config_generator.generate()
         self.lir_identifiers_generator.generate()
+        self.lir_routes_generator.generate()
+        self.ip_to_id_mapping_generator.generate()
 
     def create_topology(self):
         """
-        调用 container_manager 进行拓扑的创建
-        :return:
+        调用 satellite_manager 进行拓扑的创建
         """
         self.generate_config_files()
+        self.generate_directories()
+        asyncio.run(self.satellite_manager.generate_satellites(satellites=self.logical_constellation.satellites))
+
+    def start_topology(self):
+        """
+        调用 satellite_manager 进行拓扑的启动
+        """
+        asyncio.run(self.satellite_manager.start_satellites(satellites=self.logical_constellation.satellites))
+
+    def stop_topology(self):
+        """
+        调用 satellite_manager 进行拓扑的停止
+        """
+        asyncio.run(self.satellite_manager.stop_satellites(satellites=self.logical_constellation.satellites))
+
+    def remove_topology(self):
+        """
+        调用 satellite_manager 进行拓扑的删除
+        """
+        asyncio.run(self.satellite_manager.remove_satellites(satellites=self.logical_constellation.satellites))
+
+
+if __name__ == "__main__":
+    config_loader_tmp = clm.ConfigLoader()
+    config_loader_tmp.load()
+    topology_manager = TopologyManager(config_loader=config_loader_tmp, logger=logger)
+    topology_manager.topology_management()

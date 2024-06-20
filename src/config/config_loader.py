@@ -10,14 +10,16 @@ from src.tools.network import ip_getter as igm
 class ConfigLoader:
     def __init__(self):
         self.integer_vars = ["num_of_orbit", "sat_per_orbit", "default_bloom_filter_length",
-                             "default_hash_seed", "default_number_of_hash_funcs"]
+                             "default_hash_seed", "default_number_of_hash_funcs", "listening_port"]
         # ------------------ 卫星相关参数 ------------------
+        self.satellite_image_name = None # 卫星镜像名称
         self.num_of_orbit = None  # 轨道数量
         self.sat_per_orbit = None  # 每轨道卫星数量
         # ------------------ 卫星相关参数 ------------------
         # ------------------------- 网络相关参数 -------------------------
         self.local_ip_address = igm.IpGetter.get_host_ip()  # 本地 ip 地址
         self.docker_request_url = f"http://{self.local_ip_address}:2375"  # docker 请求地址
+        self.listening_port = None
         # ------------------------- 网络相关参数 -------------------------
         # ------------------------ 布隆过滤器参数 ------------------------
         self.default_bloom_filter_length = None  # 默认的布隆过滤器长度(bit)
@@ -29,7 +31,12 @@ class ConfigLoader:
         self.relative_dir_of_frr = None
         self.relative_dir_of_lir_identifiers = None
         self.relative_dir_of_lir_routes = None
+        self.relative_dir_of_id_to_ip_mapping = None
         # ------------------------ 地址相关参数 --------------------------
+        # ------------------------ 功能模块参数 --------------------------
+        self.frr_enabled = None
+        self.lir_enabled = None
+        # ------------------------ 功能模块参数 --------------------------
 
     def __setattr__(self, key, value):
         self.__dict__[key] = value
@@ -84,7 +91,7 @@ class ConfigLoader:
         检查是否所有元素都是非空的
         :return:
         """
-        if not all([self.__dict__[item] for item in self.__dict__.keys()]):
+        if not all([str(self.__dict__[item]) for item in self.__dict__.keys()]):
             raise ValueError("not all properties are initialized!")
 
     def __str__(self) -> str:
