@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Dict
 from src.docker.container_manager.impl import aiohttp_invoker as aim
 
 
@@ -12,8 +12,8 @@ class ContainerManager:
 
     async def create_container(self, image_name: str, container_name: str,
                                container_index: int, environment: list = None,
-                               volumes: list = None, exposed_ports: Mapping = None,
-                               port_bindings: Mapping = None, command: str = None,
+                               volumes: list = None, exposed_ports: Dict = None,
+                               port_bindings: Dict = None, command: str = None,
                                working_dir: str = None, cpu_limit: int = None,
                                memory_limit: int = None) -> (int, str):
         """
@@ -85,14 +85,15 @@ class ContainerManager:
         """
         await self.aiohttp_invoker.delete_container(container_id)
 
-    async def inspect_container(self, container_id: str):
+    async def inspect_container(self, container_id: str, container_index: int):
         """
         根据容器id进行容器的检查
         :param container_id: 容器的id
+        :param container_index: 容器的索引
         :return: 返回的是容器的相关信息
         """
         response = await self.aiohttp_invoker.inspect_container(container_id)
-        return response
+        return container_index, response
 
     async def inspect_all_containers(self):
         """

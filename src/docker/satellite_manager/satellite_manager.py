@@ -4,6 +4,7 @@ from src.config import config_loader as clm
 from src.docker.container_manager import container_manager as cmm
 from src.entities import satellite as sm
 from src.tools.progressbar import progress_bar as pbm
+from src.network import docker_net_namespace_builder as dnnbm
 
 
 class SatelliteManager:
@@ -26,6 +27,9 @@ class SatelliteManager:
                            f"LISTENING_PORT={self.config_loader.listening_port}",
                            f"FRR_ENABLED={self.config_loader.frr_enabled}",
                            f"LIR_ENABLED={self.config_loader.lir_enabled}",
+                           f"CONTAINER_NAME={satellite.container_name}",
+                           f"NODE_TYPE={str(satellite.node_type)}",
+                           f"NODE_ID={satellite.node_id}",
                            f"DISPLAY=unix:0.0",
                            f"GDK_SCALE",
                            f"GDK_DPI_SCALE"]
@@ -65,6 +69,8 @@ class SatelliteManager:
                 self.container_manager.start_container(container_id=container_id))
             tasks.append(task)
         await pbm.ProgressBar.wait_tasks_with_tqdm(tasks, description="start satellites process")
+        await self.inspect_satellites(satellites=satellites)
+        dnnbm.DockerNamespaceBuilder.build_network_namespace([satellite.pid for satellite in satellites])
 
     async def stop_satellites(self, satellites: List[sm.Satellite]):
         """
@@ -91,3 +97,21 @@ class SatelliteManager:
                 self.container_manager.delete_container(container_id))
             tasks.append(task)
         await pbm.ProgressBar.wait_tasks_with_tqdm(tasks, description="remove satellites process")
+
+    async def inspect_satellites(self, satellites: List[sm.Satellite]):
+        """
+        进行所有卫星容器的检查, 从而获取容器的 pid 以及容器的连接网络的地址
+        :param satellites: 所有的卫星节点
+        """
+        tasks = []
+        for satellite in satellites:
+            task = asyncio.create_task(self.container_manager.inspect_container(container_id=satellite.container_id,
+                                                                                container_index=satellite.node_index))
+            tasks.append(task)
+        await pbm.ProgressBar.wait_tasks_with_tqdm(tasks, description="inspect satellites progress")
+        for task in tasks:
+            satellite_index, finished_task_result = task.result()
+            inspect_satellite_addr = finished_task_result["NetworkSettings"]["Networks"]["bridge"]["IPAddress"]
+            inspect_satellite_pid = finished_task_result["State"]["Pid"]
+            satellites[satellite_index].addr_connect_to_docker_zero = inspect_satellite_addr
+            satellites[satellite_index].pid = inspect_satellite_pid

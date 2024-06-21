@@ -21,7 +21,6 @@ class FrrConfigGenerator:
             os.system(f"mkdir -p {self.generate_destination}")
         else:
             for satellite in self.satellites:
-                prefix = satellite.node_type.get_prefix()
                 with open(f"{self.generate_destination}/{satellite.container_name}.conf", "w") as f:
                     full_str = f"""frr version 7.2.1 
 frr defaults traditional

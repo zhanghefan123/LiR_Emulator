@@ -1,6 +1,6 @@
 lir:
   satellite_image_name: "satellite"
-  num_of_orbit: 6
+  num_of_orbit: 2
   sat_per_orbit: 11
   default_bloom_filter_length: 32
   default_hash_seed: 18
@@ -11,5 +11,5 @@ lir:
   relative_dir_of_lir_identifiers: lir_emulator/resources/routing/lir/identifiers
   relative_dir_of_lir_routes: lir_emulator/resources/routing/lir/routes
   relative_dir_of_id_to_ip_mapping: lir_emulator/resources/network
-  frr_enabled: false
+  frr_enabled: true
   lir_enabled: false

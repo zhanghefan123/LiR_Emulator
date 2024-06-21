@@ -1,13 +1,11 @@
-import os.path
-
 if __name__ == "__main__":
     import sys
 
     sys.path.append("../")
+import os.path
+import traceback
 import asyncio
-import loguru
 from enum import Enum
-from loguru import logger
 from PyInquirer import prompt
 from src.docker.satellite_manager import satellite_manager as smm
 from src.config import config_loader as clm
@@ -40,7 +38,7 @@ class TopologyManager:
         CREATED = 2
         STARTED = 3
 
-    def __init__(self, config_loader: clm.ConfigLoader, logger: loguru.Logger):
+    def __init__(self, config_loader: clm.ConfigLoader, logger):
         """
         :param config_loader: 配置加载对象
         :param logger: 日志记录器
@@ -80,7 +78,7 @@ class TopologyManager:
         elif self.topology_state == TopologyManager.TopologyState.CREATED:
             if command in ["start", "destroy"]:
                 pass
-            elif command in ["creat", "exit"]:
+            elif command in ["create", "exit"]:
                 result = False
                 reason = "topology already created"
         elif self.topology_state == TopologyManager.TopologyState.STARTED:
@@ -109,23 +107,30 @@ class TopologyManager:
         """
         进行拓扑的管理: 包括拓扑的创建, 启动, 销毁
         """
-        selected_command = prompt(QUESTION_FOR_COMMAND)
-        valid, reason = self.validate_command(selected_command)
-        if not valid:
-            self.logger.error(reason)
-        else:
-            # --------------------------------------------------
-            try:
-                if selected_command == "create":
-                    self.create_topology()
-                elif selected_command == "start":
-                    self.start_topology()
-                elif selected_command == "destroy":
-                    self.stop_topology()
-                    self.remove_topology()
-                self.change_state(command=selected_command)
-            except Exception as e:
-                self.logger.error(e)
+        # --------------------------------------------------
+        while True:
+            selected_command = prompt(QUESTION_FOR_COMMAND)["command"]
+            valid, reason = self.validate_command(selected_command)
+            if not valid:
+                self.logger.error(reason)
+            else:
+                try:
+                    if selected_command == "create":
+                        self.create_topology()
+                    elif selected_command == "start":
+                        self.start_topology()
+                    elif selected_command == "destroy":
+                        if self.topology_state == TopologyManager.TopologyState.CREATED:
+                            self.remove_topology()
+                        elif self.topology_state == TopologyManager.TopologyState.STARTED:
+                            self.stop_topology()
+                            self.remove_topology()
+                    elif selected_command == "exit":
+                        break
+                    self.change_state(command=selected_command)
+                except Exception:
+                    self.logger.error(traceback.format_exc())
+        self.logger.success("成功退出拓扑管理程序!")
 
     def generate_directories(self):
         """
@@ -156,8 +161,8 @@ class TopologyManager:
         """
         调用 satellite_manager 进行拓扑的创建
         """
-        self.generate_config_files()
         self.generate_directories()
+        self.generate_config_files()
         asyncio.run(self.satellite_manager.generate_satellites(satellites=self.logical_constellation.satellites))
 
     def start_topology(self):
@@ -177,10 +182,3 @@ class TopologyManager:
         调用 satellite_manager 进行拓扑的删除
         """
         asyncio.run(self.satellite_manager.remove_satellites(satellites=self.logical_constellation.satellites))
-
-
-if __name__ == "__main__":
-    config_loader_tmp = clm.ConfigLoader()
-    config_loader_tmp.load()
-    topology_manager = TopologyManager(config_loader=config_loader_tmp, logger=logger)
-    topology_manager.topology_management()

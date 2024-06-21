@@ -13,5 +13,5 @@ class IPtoIDGenerator:
             ip_addresses = "|".join(satellite.ip_addresses.values())
             id_to_ip_mapping_str = f"{satellite.container_name}|{ip_addresses}"
             full_str += id_to_ip_mapping_str
-        with open(f"{self.generate_destination}/address_mapping.conf") as f:
+        with open(f"{self.generate_destination}/address_mapping.conf", "w") as f:
             f.write(full_str)

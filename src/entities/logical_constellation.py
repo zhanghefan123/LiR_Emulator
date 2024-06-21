@@ -8,7 +8,7 @@ from src.entities import node as nm
 from src.entities import satellite as sm
 from src.tools.network import subnet_generator as sgm
 from src.entities import link as lm
-from typing import List, Mapping
+from typing import List, Dict, Tuple
 from src.entities import lir_link_identifier as llim
 
 
@@ -24,7 +24,7 @@ class LogicalConstellation:
         self.satellites: List[sm.Satellite] = []
         self.isls: List[lm.Link] = []  # ISL 集合 (不含方向)
         self.lir_link_identifiers: List[llim.LiRLinkIdentifier] = []  # 链路标识集合 (含方向)
-        self.map_from_source_dest_pair_to_lir_link_identifier: Mapping[(int, int): llim.LiRLinkIdentifier] = {}
+        self.map_from_source_dest_pair_to_lir_link_identifier: Dict[Tuple[int, int], llim.LiRLinkIdentifier] = {}
 
         self.generate_satellites()
         self.generate_isls()
@@ -40,7 +40,7 @@ class LogicalConstellation:
         for orbit_index in range(num_of_orbit):
             for sat_index in range(sat_per_orbit * orbit_index, sat_per_orbit * (orbit_index + 1)):
                 sat_index_in_orbit = sat_index % sat_per_orbit
-                satellite = sm.Satellite(node_index=sat_index, node_type=nm.Node.Type.SATELLITE_NODE,
+                satellite = sm.Satellite(node_index=sat_index, node_type=nm.Node.Type.SATELLITE,
                                          orbit_index=orbit_index, sat_index_in_orbit=sat_index_in_orbit)
                 self.satellites.append(satellite)
 
@@ -128,7 +128,7 @@ class LogicalConstellation:
         self.lir_link_identifiers.append(forward_identifier)
         source_sat.link_identifiers.append(forward_identifier)
         self.map_from_source_dest_pair_to_lir_link_identifier[
-            (source_sat_index, dest_sat_index)] = forward_identifier
+            (source_sat_index + 1, dest_sat_index + 1)] = forward_identifier
 
         current_link_identifier_id = len(self.lir_link_identifiers) + 1
         reverse_identifier = llim.LiRLinkIdentifier(link_identifier_id=current_link_identifier_id,
@@ -138,7 +138,7 @@ class LogicalConstellation:
         self.lir_link_identifiers.append(reverse_identifier)
         dest_sat.link_identifiers.append(reverse_identifier)
         self.map_from_source_dest_pair_to_lir_link_identifier[
-            (dest_sat_index, source_sat_index)] = reverse_identifier
+            (dest_sat_index + 1, source_sat_index + 1)] = reverse_identifier
         # ----------------------- 生成双方向lir链路标识 -----------------------
 
         source_sat.interface_index += 1

@@ -1,6 +1,9 @@
 import signal
 import time
+import traceback
 from loguru import logger
+from routing import frr_starter as fmm
+from config import env_loader as elm
 
 
 def signal_sigterm_decorator(func):
@@ -20,6 +23,8 @@ def signal_sigterm_decorator(func):
 class Starter:
     def __init__(self):
         self.logger = logger
+        self.env_loader = elm.EnvLoader()
+        self.frr_starter = fmm.FrrStarter(env_loader=self.env_loader)
 
     @signal_sigterm_decorator
     def never_stop_until_sigterm(self):
@@ -32,9 +37,10 @@ class Starter:
 
     def main_logic(self):
         try:
+            self.frr_starter.start_frr()
             self.never_stop_until_sigterm()
-        except Exception as e:
-            self.logger.error(e)
+        except Exception:
+            self.logger.error(traceback.format_exc())
 
 
 if __name__ == "__main__":

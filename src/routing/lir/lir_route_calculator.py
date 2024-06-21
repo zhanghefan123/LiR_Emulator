@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import List, Mapping
+from typing import List, Dict, Tuple
 from src.entities import satellite as sm
 from src.entities import lir_link_identifier as llim
 
@@ -7,7 +7,7 @@ from src.entities import lir_link_identifier as llim
 class LirRouteCalculator:
     def __init__(self, satellites: List[sm.Satellite],
                  lir_link_identifiers: List[llim.LiRLinkIdentifier],
-                 map_from_source_dest_pair_to_lir_link_identifier: Mapping[(int, int): llim.LiRLinkIdentifier],
+                 map_from_source_dest_pair_to_lir_link_identifier: Dict[Tuple[int, int], llim.LiRLinkIdentifier],
                  generate_destination: str):
         """
         初始化路由配置生成器
@@ -49,8 +49,8 @@ class LirRouteCalculator:
         :return: 计算的到其他节点的路由的字符串表示
         """
         # --------------------------- 记录 Map<目的节点, 链路标识路径> ---------------------------
-        identifier_sequence_to_other_satellites: Mapping[int: List[int]] = {}
-        node_sequence_to_other_satellites: Mapping[int: List[int]] = {}
+        identifier_sequence_to_other_satellites: Dict[int, List[int]] = {}
+        node_sequence_to_other_satellites: Dict[int, List[int]] = {}
         satellite_ids = [satellite.node_id for satellite in self.satellites]
         for satellite_id in satellite_ids:
             if selected_satellite_id == satellite_id:
