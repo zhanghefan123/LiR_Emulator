@@ -22,5 +22,5 @@ class LirConfigGenerator:
             with open(lir_file_path, "w") as f:
                 full_str = ""
                 for interface_index, lir_link_identifier in enumerate(satellite.link_identifiers):
-                    full_str += f"{prefix}{satellite.node_id}_index{interface_index + 1}->{lir_link_identifier.link_identifier_id}"
+                    full_str += f"{prefix}{satellite.node_id}_index{interface_index + 1}->{lir_link_identifier.link_identifier_id}\n"
                 f.write(full_str)

@@ -11,5 +11,6 @@ lir:
   relative_dir_of_lir_identifiers: lir_emulator/resources/routing/lir/identifiers
   relative_dir_of_lir_routes: lir_emulator/resources/routing/lir/routes
   relative_dir_of_id_to_ip_mapping: lir_emulator/resources/network
+  relative_dir_of_images_manager: lir_emulator/src/docker/images/build_docker_images/bin
   frr_enabled: true
-  lir_enabled: false
+  lir_enabled: true

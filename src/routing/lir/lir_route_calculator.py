@@ -57,7 +57,7 @@ class LirRouteCalculator:
                 continue
             else:
                 node_sequence = nx.shortest_path(self.topology_direction_graph, source=selected_satellite_id, target=satellite_id)
-                identifier_sequence = [self.map_from_source_dest_pair_to_lir_link_identifier[(node_sequence[index], node_sequence[index+1])]
+                identifier_sequence = [self.map_from_source_dest_pair_to_lir_link_identifier[(node_sequence[index], node_sequence[index+1])].link_identifier_id
                                        for index in range(len(node_sequence) - 1)]
                 identifier_sequence_to_other_satellites[satellite_id] = identifier_sequence
                 node_sequence_to_other_satellites[satellite_id] = node_sequence[1:]

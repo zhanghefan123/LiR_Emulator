@@ -5,6 +5,7 @@ import functools
 class EnvLoader:
     def __init__(self):
         self.frr_enabled = os.getenv("FRR_ENABLED")
+        self.lir_enabled = os.getenv("LIR_ENABLED")
         self.container_name = os.getenv("CONTAINER_NAME")
         self.node_type = os.getenv("NODE_TYPE")
         self.node_id = os.getenv("NODE_ID")

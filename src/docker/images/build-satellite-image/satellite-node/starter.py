@@ -2,7 +2,8 @@ import signal
 import time
 import traceback
 from loguru import logger
-from routing import frr_starter as fmm
+from routing.frr import frr_starter as fmm
+from routing.lir import lir_configurator as lcm
 from config import env_loader as elm
 
 
@@ -25,6 +26,7 @@ class Starter:
         self.logger = logger
         self.env_loader = elm.EnvLoader()
         self.frr_starter = fmm.FrrStarter(env_loader=self.env_loader)
+        self.lir_configurator = lcm.LiRConfigurator(env_loader=self.env_loader)
 
     @signal_sigterm_decorator
     def never_stop_until_sigterm(self):
@@ -38,6 +40,7 @@ class Starter:
     def main_logic(self):
         try:
             self.frr_starter.start_frr()
+            self.lir_configurator.config_lir()
             self.never_stop_until_sigterm()
         except Exception:
             self.logger.error(traceback.format_exc())

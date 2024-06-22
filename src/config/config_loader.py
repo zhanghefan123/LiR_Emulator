@@ -32,6 +32,7 @@ class ConfigLoader:
         self.relative_dir_of_lir_identifiers = None
         self.relative_dir_of_lir_routes = None
         self.relative_dir_of_id_to_ip_mapping = None
+        self.relative_dir_of_images_manager = None
         # ------------------------ 地址相关参数 --------------------------
         # ------------------------ 功能模块参数 --------------------------
         self.frr_enabled = None

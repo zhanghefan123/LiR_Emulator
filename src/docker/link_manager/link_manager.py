@@ -13,6 +13,9 @@ class LinkManager:
         self.multithread_executor = mem.MultiThreadExecutor(max_workers=60)
 
     def generate_links(self):
+        """
+        生成所有的链路
+        """
         tasks = []
         args = []
         for link in self.links:
