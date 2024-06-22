@@ -4,7 +4,7 @@ from src.config import config_loader as clm
 from src.docker.container_manager import container_manager as cmm
 from src.entities import satellite as sm
 from src.tools.progressbar import progress_bar as pbm
-from src.network import docker_net_namespace_builder as dnnbm
+
 
 
 class SatelliteManager:
@@ -70,7 +70,6 @@ class SatelliteManager:
             tasks.append(task)
         await pbm.ProgressBar.wait_tasks_with_tqdm(tasks, description="start satellites process")
         await self.inspect_satellites(satellites=satellites)
-        dnnbm.DockerNamespaceBuilder.build_network_namespace([satellite.pid for satellite in satellites])
 
     async def stop_satellites(self, satellites: List[sm.Satellite]):
         """

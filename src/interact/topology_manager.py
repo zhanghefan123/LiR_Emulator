@@ -14,6 +14,9 @@ from src.routing.frr import frr_config_generator as fcgm
 from src.routing.lir import lir_config_generator as lcgm
 from src.routing.lir import lir_route_calculator as lrcm
 from src.network import id_to_ip_mapping_generator as itimgm
+from src.network import docker_net_namespace_builder as dnnbm
+from src.docker.link_manager import link_manager as lmm
+
 
 POSSIBLE_COMMANDS = [
     "create",
@@ -48,6 +51,7 @@ class TopologyManager:
         self.logger = logger
         self.logical_constellation = lcm.LogicalConstellation(config_loader=config_loader)
         self.satellite_manager = smm.SatelliteManager(config_loader=config_loader)
+        self.link_manager = lmm.LinkManager(links=self.logical_constellation.isls)
         self.frr_config_generator = fcgm.FrrConfigGenerator(satellites=self.logical_constellation.satellites,
                                                             generate_destination=f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_frr}")
         self.lir_identifiers_generator = lcgm.LirConfigGenerator(satellites=self.logical_constellation.satellites,
@@ -170,6 +174,8 @@ class TopologyManager:
         调用 satellite_manager 进行拓扑的启动
         """
         asyncio.run(self.satellite_manager.start_satellites(satellites=self.logical_constellation.satellites))
+        dnnbm.DockerNamespaceBuilder.build_network_namespace([satellite.pid for satellite in self.logical_constellation.satellites])
+        self.link_manager.generate_links()
 
     def stop_topology(self):
         """
