@@ -1,7 +1,8 @@
 from config import env_loader as elm
-from routing.lir import interface_table_generator as itgm
-from routing.lir import netlink_client as ncm
-from routing.lir import net_to_id_mapper as ntimm
+from routing.lir.tables import interface_table_generator as itgm
+from routing.lir.tables import routing_table_generator as rtgm
+from routing.lir.tools import netlink_client as ncm
+from routing.lir.mapper import net_to_id_mapper as ntimm
 
 
 class LiRConfigurator:
@@ -16,6 +17,10 @@ class LiRConfigurator:
         self.interface_table_generator = itgm.InterfaceTableGenerator(
             path_of_name_to_lid_file=f"/configuration/lir/identifiers/{self.container_name}.conf",
             netlink_client=self.netlink_client)
+        self.routing_table_generator = rtgm.RoutingTableGenerator(
+            path_of_routes_configuration_file=f"/configuration/lir/routes/{self.container_name}.conf",
+            netlink_client=self.netlink_client
+        )
         self.net_to_id_mapper = ntimm.NetNamespaceToNodeIdMapper(netlink_client=self.netlink_client,
                                                                  node_id=env_loader.node_id)
 
@@ -26,6 +31,7 @@ class LiRConfigurator:
         """
         if self.lir_enabled:
             self.interface_table_generator.start()
+            self.routing_table_generator.start()
             self.net_to_id_mapper.start()
         else:
             pass

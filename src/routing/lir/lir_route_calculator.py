@@ -70,11 +70,11 @@ class LirRouteCalculator:
             length_of_identifier_sequence = len(identifier_sequence)
             sequence_str = ""
             for index in range(len(identifier_sequence)):
-                if index != length_of_identifier_sequence:
+                if index != length_of_identifier_sequence - 1:
                     # 为了进行路径验证，我们不仅要插入链路标识还需要插入节点标识
                     sequence_str += f"{identifier_sequence[index]}->{node_sequence[index]}->"
                 else:
-                    sequence_str += f"{identifier_sequence[index]}->{node_sequence}->"
+                    sequence_str += f"{identifier_sequence[index]}->{node_sequence[index]}"
             single_route_str = f"source:{selected_satellite_id} dest:{dest_satellite_id} {sequence_str}\n"
             all_routes_str += single_route_str
         return all_routes_str

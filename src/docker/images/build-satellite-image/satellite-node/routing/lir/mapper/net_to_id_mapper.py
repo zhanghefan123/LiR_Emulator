@@ -1,4 +1,4 @@
-from routing.lir import netlink_client as ncm
+from routing.lir.tools import netlink_client as ncm
 
 
 class NetNamespaceToNodeIdMapper:

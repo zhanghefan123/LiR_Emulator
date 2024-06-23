@@ -6,7 +6,7 @@ from loguru import logger
 if __name__ == "__main__":
     import sys
 
-    sys.path.append("../")
+    sys.path.append("../../")
 
 QUESTIONS_FOR_NETLINK_COMMAND = [
     {

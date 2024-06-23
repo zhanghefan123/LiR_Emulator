@@ -14,8 +14,12 @@ def signal_sigterm_decorator(func):
     :return: 装饰的函数
     """
 
+    def print_params_and_exit(a, b):
+        print(a, b, flush=True)
+        exit()
+
     def signal_decorated(*args, **kwargs):
-        signal.signal(signal.SIGTERM, lambda: exit())  # 不用管这个报错
+        signal.signal(signal.SIGTERM, lambda a, b: print_params_and_exit(a, b))  # 不用管这个报错
         func(*args, **kwargs)
 
     return signal_decorated
