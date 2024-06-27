@@ -9,6 +9,9 @@ class EnvLoader:
         self.container_name = os.getenv("CONTAINER_NAME")
         self.node_type = os.getenv("NODE_TYPE")
         self.node_id = os.getenv("NODE_ID")
+        self.default_bloom_filter_length = os.getenv("DEFAULT_BLOOM_FILTER_LENGTH")
+        self.default_hash_seed = os.getenv("DEFAULT_HASH_SEED")
+        self.default_number_of_hash_funcs = os.getenv("DEFAULT_NUMBER_OF_HASH_FUNCS")
         print(self, flush=True)
 
     def __str__(self):

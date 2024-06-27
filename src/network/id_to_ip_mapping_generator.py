@@ -9,9 +9,15 @@ class IPtoIDGenerator:
 
     def generate(self):
         full_str = ""
-        for satellite in self.satellites:
-            ip_addresses = "|".join(satellite.ip_addresses.values())
-            id_to_ip_mapping_str = f"{satellite.container_name}|{ip_addresses}"
+        for index, satellite in enumerate(self.satellites):
+            if index == len(self.satellites) - 1:
+                # 到达最后一行不需要加 \n
+                ip_addresses = "|".join(satellite.ip_addresses.values())
+                id_to_ip_mapping_str = f"{satellite.container_name}|{ip_addresses}"
+            else:
+                # 未到达最后一行需要加 \n
+                ip_addresses = "|".join(satellite.ip_addresses.values())
+                id_to_ip_mapping_str = f"{satellite.container_name}|{ip_addresses}\n"
             full_str += id_to_ip_mapping_str
         with open(f"{self.generate_destination}/address_mapping.conf", "w") as f:
             f.write(full_str)

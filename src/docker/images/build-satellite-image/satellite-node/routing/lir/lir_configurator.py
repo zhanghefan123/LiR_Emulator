@@ -3,6 +3,7 @@ from routing.lir.tables import interface_table_generator as itgm
 from routing.lir.tables import routing_table_generator as rtgm
 from routing.lir.tools import netlink_client as ncm
 from routing.lir.mapper import net_to_id_mapper as ntimm
+from routing.lir.bloom import bloom_filter_configurator as bfcm
 
 
 class LiRConfigurator:
@@ -23,6 +24,8 @@ class LiRConfigurator:
         )
         self.net_to_id_mapper = ntimm.NetNamespaceToNodeIdMapper(netlink_client=self.netlink_client,
                                                                  node_id=env_loader.node_id)
+        self.bloom_filter_configurator = bfcm.BloomFilterConfigurator(env_loader=env_loader,
+                                                                      netlink_client=self.netlink_client)
 
     def config_lir(self):
         """
@@ -33,5 +36,6 @@ class LiRConfigurator:
             self.interface_table_generator.start()
             self.routing_table_generator.start()
             self.net_to_id_mapper.start()
+            self.bloom_filter_configurator.start()
         else:
             pass

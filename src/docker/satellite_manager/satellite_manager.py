@@ -32,13 +32,17 @@ class SatelliteManager:
                            f"NODE_ID={satellite.node_id}",
                            f"DISPLAY=unix:0.0",
                            f"GDK_SCALE",
-                           f"GDK_DPI_SCALE"]
+                           f"GDK_DPI_SCALE",
+                           f"DEFAULT_BLOOM_FILTER_LENGTH={self.config_loader.default_bloom_filter_length}",
+                           f"DEFAULT_HASH_SEED={self.config_loader.default_hash_seed}",
+                           f"DEFAULT_NUMBER_OF_HASH_FUNCTIONS={self.config_loader.default_number_of_hash_funcs}"]
             # ----------------------------- 环境变量  -----------------------------
             # ----------------------------- 容器映射  -----------------------------
             volumes = [
                 f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_frr}:/configuration/frr",
                 f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_lir_identifiers}:/configuration/lir/identifiers",
                 f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_lir_routes}:/configuration/lir/routes",
+                f"{self.config_loader.abs_dir_of_projects}/{self.config_loader.relative_dir_of_id_to_ip_mapping}:/configuration/network",
                 f"/tmp/.X11-unix:/tmp/.X11-unix"
             ]
             # ----------------------------- 容器映射  -----------------------------
