@@ -10,6 +10,20 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 
+class Color:
+    @classmethod
+    def blue(cls):
+        return [57.0 / 255.0, 115.0 / 255.0, 173.0 / 255.0]
+
+    @classmethod
+    def orange(cls):
+        return [240.0/255.0, 136.0/255.0, 58.0/255.0]
+
+    @classmethod
+    def green(cls):
+        return [71.0/255.0, 157.0/255.0, 64.0/255.0]
+
+
 class SpecificPrefix:
 
     @classmethod
@@ -58,7 +72,8 @@ class ForwardingTimePlotter:  # LiR Forward Time Consumption
                     lir_forwarding_time = float((line[start_index: end_index]).strip())
                     self.ip_forwarding_time_list.append(lir_forwarding_time)
                 elif SpecificPrefix.get_lir_reencoding_prefix() in line:
-                    start_index = line.find(SpecificPrefix.get_lir_reencoding_prefix()) + len(SpecificPrefix.get_lir_reencoding_prefix())
+                    start_index = line.find(SpecificPrefix.get_lir_reencoding_prefix()) + len(
+                        SpecificPrefix.get_lir_reencoding_prefix())
                     end_index = line.find(SpecificPrefix.get_lir_suffix(), start_index)
                     lir_reencoding_forwarding_time = float((line[start_index: end_index]).strip())
                     self.lir_reencoding_time_list.append(lir_reencoding_forwarding_time)
@@ -68,14 +83,17 @@ class ForwardingTimePlotter:  # LiR Forward Time Consumption
                 print(line)
 
     def plot_distribution(self):
-        plt.hist(self.lir_forwarding_time_list, bins=self.bins, color="blue", label="LiR (direct forwarding)", density=True, alpha=0.5)
-        plt.hist(self.lir_reencoding_time_list, bins=self.bins, color="red", label="LiR (re-encoding)", density=True, alpha=0.5)
-        plt.hist(self.ip_forwarding_time_list, bins=self.bins, color="orange", label="ip", density=True, alpha=0.5)
+        plt.hist(self.lir_forwarding_time_list, bins=self.bins, color=Color.blue(), label="LiR (direct forwarding)",
+                 density=True, alpha=0.6)
+        plt.hist(self.lir_reencoding_time_list, bins=self.bins, color=Color.green(), label="LiR (re-encoding)",
+                 density=True, alpha=0.6)
+        plt.hist(self.ip_forwarding_time_list, bins=self.bins, color=Color.orange(), label="IP-based packet forwarding",
+                 density=True, alpha=0.6)
 
     def plot_figure(self):
         self.resolve_kernel_log_file()
         plt.style.use("ieee")
-        plt.figure(figsize=(4.3, 2.8), dpi=100)
+        plt.figure(figsize=(7, 3.5), dpi=100)
         font = {
             "family": "sans-serif",
             "sans-serif": "Helvetica",
@@ -84,8 +102,10 @@ class ForwardingTimePlotter:  # LiR Forward Time Consumption
         }
         plt.rc("font", **font)
         self.plot_distribution()
-        plt.xlabel(u"Time Consumption of Forwarding (ns)", fontsize=13)
-        plt.ylabel("Probability Density", fontsize=13)
+        plt.xlabel(u"Time Consumption of Forwarding (\u03bcs)", fontsize=13)
+        plt.ylabel("Probability Density ($\\times10^{-4}$)", fontsize=13)
+        plt.xticks(np.arange(0, 5500, 1000), np.arange(0, 5, 1), fontsize=13)
+        plt.yticks(np.arange(0.0000, 0.0017, 0.0002), np.arange(0, 17, 2), fontsize=13)
         plt.legend()
         plt.tight_layout()
         with PdfPages(self.output_figure_name) as pdf:
