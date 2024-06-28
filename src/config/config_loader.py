@@ -2,6 +2,7 @@ import functools
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append("../../")
 import yaml
 from src.tools.network import ip_getter as igm
@@ -12,11 +13,12 @@ class ConfigLoader:
         self.integer_vars = ["num_of_orbit", "sat_per_orbit", "default_bloom_filter_length",
                              "default_hash_seed", "default_number_of_hash_funcs", "listening_port"]
         # ------------------ 卫星相关参数 ------------------
-        self.satellite_image_name = None # 卫星镜像名称
+        self.satellite_image_name = None  # 卫星镜像名称
         self.num_of_orbit = None  # 轨道数量
         self.sat_per_orbit = None  # 每轨道卫星数量
         # ------------------ 卫星相关参数 ------------------
         # ------------------------- 网络相关参数 -------------------------
+        self.encoding_count = None
         self.local_ip_address = igm.IpGetter.get_host_ip()  # 本地 ip 地址
         self.docker_request_url = f"http://{self.local_ip_address}:2375"  # docker 请求地址
         self.listening_port = None

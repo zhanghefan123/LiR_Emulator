@@ -60,6 +60,7 @@ class NetlinkMessageType:
     CMD_CONSTRUCT_NEW_INTERFACE_TABLE = 7  # 进行新的接口表的创建
     CMD_RETRIEVE_NEW_INTERFACE_TABLE = 8  # 进行接口表的返回
     CMD_GET_BIND_ID = 9  # 进行绑定的节点 ID 的查找
+    CMD_SET_ENCODING_COUNT = 10
 
 
 # 消息的组成

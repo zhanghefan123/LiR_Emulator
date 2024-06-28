@@ -12,6 +12,7 @@ class EnvLoader:
         self.default_bloom_filter_length = os.getenv("DEFAULT_BLOOM_FILTER_LENGTH")
         self.default_hash_seed = os.getenv("DEFAULT_HASH_SEED")
         self.default_number_of_hash_funcs = os.getenv("DEFAULT_NUMBER_OF_HASH_FUNCS")
+        self.encoding_count = os.getenv("ENCODING_COUNT")
         print(self, flush=True)
 
     def __str__(self):

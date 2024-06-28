@@ -30,12 +30,13 @@ class SatelliteManager:
                            f"CONTAINER_NAME={satellite.container_name}",
                            f"NODE_TYPE={str(satellite.node_type)}",
                            f"NODE_ID={satellite.node_id}",
+                           f"ENCODING_COUNT={self.config_loader.encoding_count}",
                            f"DISPLAY=unix:0.0",
                            f"GDK_SCALE",
                            f"GDK_DPI_SCALE",
                            f"DEFAULT_BLOOM_FILTER_LENGTH={self.config_loader.default_bloom_filter_length}",
                            f"DEFAULT_HASH_SEED={self.config_loader.default_hash_seed}",
-                           f"DEFAULT_NUMBER_OF_HASH_FUNCTIONS={self.config_loader.default_number_of_hash_funcs}"]
+                           f"DEFAULT_NUMBER_OF_HASH_FUNCS={self.config_loader.default_number_of_hash_funcs}"]
             # ----------------------------- 环境变量  -----------------------------
             # ----------------------------- 容器映射  -----------------------------
             volumes = [

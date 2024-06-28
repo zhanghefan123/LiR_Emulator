@@ -40,7 +40,7 @@ class LirRouteCalculator:
             all_sat_route_str += single_sat_route_in_str
         all_sat_route_file_generate_destination = f"{self.generate_destination}/all.conf"
         with open(all_sat_route_file_generate_destination, "w") as f:
-            f.write(all_sat_route_file_generate_destination)
+            f.write(all_sat_route_str)
 
     def calculate_satellite_routes_to_others(self, selected_satellite_id: int) -> str:
         """

@@ -5,21 +5,25 @@ from PyInquirer import prompt
 from routing.lir.apps.udp import questions as qm
 from config import env_loader as elm
 from routing.lir.apps.types import types as tm
-
+from routing.lir.tables import routes_loader as rlm
+import time
 
 class UdpLiRHandler:
     def __init__(self, possible_destination_node_name_list: List[str],
                  destination_port: int,
-                 env_loader: elm.EnvLoader):
+                 env_loader: elm.EnvLoader,
+                 routes_loader: rlm.RoutesLoader):
         """
         :param possible_destination_node_name_list: 可以选择的目的节点的名称列表
         :param destination_port: 目的端口
         :param env_loader: 环境变量加载器
+        :param routes_loader: 路由条目加载器
         """
         self.possible_destination_node_name_list = possible_destination_node_name_list
         self.destination_port = destination_port
         self.env_loader = env_loader
         self.transmission_pattern = None
+        self.routes_loader = routes_loader
 
     def get_user_input(self):
         """
@@ -41,6 +45,7 @@ class UdpLiRHandler:
         question_for_destination_node = qm.QUESTION_FOR_DESTINATION
         question_for_destination_node[0]["choices"] = self.possible_destination_node_name_list
         selected_destination_node_str = prompt(question_for_destination_node)["destination"]
+        # 将节点id提取出来
         selected_destination_node_id = int(
             selected_destination_node_str[selected_destination_node_str.find("satellite") + len("satellite"):])
         return selected_destination_node_id
@@ -92,7 +97,7 @@ class UdpLiRHandler:
         """
         # 选择单个卫星
         selected_destination_node_id = self.select_destination_node()
-        # 创建好 socket
+        # 创建好单播 socket
         unicast_udp_socket = self.create_udp_socket_and_set_sock_option([selected_destination_node_id])
         # 进行消息的发送
         self.send_data(unicast_udp_socket, [selected_destination_node_id] * 4)
@@ -102,7 +107,14 @@ class UdpLiRHandler:
         处理多播协议
         :return:
         """
-        raise ValueError("不支持的传输模式")
+        # 选择一系列的目的节点
+        destination_node_list = self.select_destination_node_ids()  # 进行多个目的节点的选择
+        # 创建好多播 socket
+        multicast_udp_socket = self.create_udp_socket_and_set_sock_option(destination_node_list)
+        if len(destination_node_list) != 4:
+            # 少于 4 个的部分使用 250 进行填充
+            destination_node_list = destination_node_list + [250] * (4 - len(destination_node_list))
+        self.send_data(multicast_udp_socket, destination_node_list)
 
     def send_data(self, udp_socket: socket.socket, destination_node_id_list: List[int]):
         """
@@ -114,12 +126,17 @@ class UdpLiRHandler:
         destination_node_ids_in_str = [str(item) for item in destination_node_id_list]
         lir_destination_address = ".".join(destination_node_ids_in_str)
         while True:
-            message = input("请输入您想要发送的消息: (exit to break)")
-            if message == "exit":
-                udp_socket.sendto(message.encode(), (lir_destination_address, self.destination_port))
-                break
+            send_message = ("f" * 100).encode()
+            msg_count = int(prompt(qm.QUESTION_FOR_MESSAGE_COUNT)["count"])
+            interval = float(prompt(qm.QUESTION_FOR_INTERVAL)["interval"])
+            for index in range(msg_count):
+                udp_socket.sendto(send_message, (lir_destination_address, self.destination_port))
+                time.sleep(interval)
+            continue_or_not = prompt(qm.QUESTION_FOR_CONTINUE)["continue"]
+            if continue_or_not == "yes":
+                pass
             else:
-                udp_socket.sendto(message.encode(), (lir_destination_address, self.destination_port))
+                break
 
     def start(self):
         self.get_user_input()

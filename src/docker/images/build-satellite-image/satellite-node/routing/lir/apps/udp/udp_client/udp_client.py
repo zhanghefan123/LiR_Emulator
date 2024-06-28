@@ -9,11 +9,12 @@ from routing.lir.mapper import id_to_ip_mapping_loader as itiml
 from routing.lir.apps.udp import questions as qm
 from routing.lir.apps.udp.udp_client import udp_ip_handler as uihm
 from routing.lir.apps.udp.udp_client import udp_lir_handler as ulhm
+from routing.lir.tables import routes_loader as rlm
 from config import env_loader as elm
 
 
 class UdpClient:
-    def __init__(self):
+    def __init__(self, routes_loader: rlm.RoutesLoader):
         """
         client 初始化函数
         """
@@ -21,6 +22,7 @@ class UdpClient:
         self.selected_destination_port = None
         self.id_to_ip_mapping = itiml.IdToIpMappingLoader().load()
         self.env_loader = elm.EnvLoader()
+        self.routes_loader = routes_loader
 
     def get_user_input(self):
         """
@@ -68,10 +70,12 @@ class UdpClient:
         possible_destination_node_name_list = [item for item in self.id_to_ip_mapping.keys()]
         udp_lir_handler = ulhm.UdpLiRHandler(possible_destination_node_name_list=possible_destination_node_name_list,
                                              destination_port=self.selected_destination_port,
-                                             env_loader=self.env_loader)
+                                             env_loader=self.env_loader,
+                                             routes_loader=self.routes_loader)
         udp_lir_handler.start()
 
 
 if __name__ == "__main__":
-    udp_client = UdpClient()
+    routes_loader_tmp = rlm.RoutesLoader()
+    udp_client = UdpClient(routes_loader=routes_loader_tmp)
     udp_client.start()

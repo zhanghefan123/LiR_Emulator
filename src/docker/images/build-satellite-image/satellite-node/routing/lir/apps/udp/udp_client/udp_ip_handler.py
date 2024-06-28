@@ -1,4 +1,5 @@
 import socket
+import time
 from typing import Dict, List
 from PyInquirer import prompt
 from routing.lir.apps.udp import questions as qm
@@ -30,12 +31,17 @@ class UdpIpHandler:
         进行消息的发送
         """
         while True:
-            message = input("请输入您想要发送的消息: (exit to break)")
-            if message == "exit":
-                udp_socket.sendto(message.encode(), (destination_ip_address, self.destination_port))
-                break
+            send_message = ("f" * 100).encode()
+            msg_count = int(prompt(qm.QUESTION_FOR_MESSAGE_COUNT)["count"])
+            interval = float(prompt(qm.QUESTION_FOR_INTERVAL)["interval"])
+            for index in range(msg_count):
+                udp_socket.sendto(send_message, (destination_ip_address, self.destination_port))
+                time.sleep(interval)
+            continue_or_not = prompt(qm.QUESTION_FOR_CONTINUE)["continue"]
+            if continue_or_not == "yes":
+                pass
             else:
-                udp_socket.sendto(message.encode(), (destination_ip_address, self.destination_port))
+                break
 
     @classmethod
     def create_udp_socket(cls):

@@ -57,3 +57,32 @@ QUESTION_FOR_SERVER_LISTEN_PORT = [
 ]
 # -------------- QUESTIONS FOR SERVER ----------------
 
+# -------------- 各种不同的消息类型  --------------
+QUESTION_FOR_MESSAGE_COUNT = [
+    {
+        "type": "input",
+        "name": "count",
+        "message": "请输入想要发送消息的数量: ",
+        "default": "500"
+    }
+]
+
+QUESTION_FOR_INTERVAL = [
+    {
+        "type": "input",
+        "name": "interval",
+        "message": "请输入想要发送消息的时间间隔: ",
+        "default": "0.01"
+    }
+]
+
+QUESTION_FOR_CONTINUE = [
+    {
+        "type": "list",
+        "name": "continue",
+        "message": "是否需要继续",
+        "choices": ["yes", "no"]
+    }
+]
+# -------------- 各种不同的消息类型  --------------
+
