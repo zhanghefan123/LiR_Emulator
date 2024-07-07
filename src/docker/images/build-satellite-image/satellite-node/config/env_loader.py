@@ -13,7 +13,19 @@ class EnvLoader:
         self.default_hash_seed = os.getenv("DEFAULT_HASH_SEED")
         self.default_number_of_hash_funcs = os.getenv("DEFAULT_NUMBER_OF_HASH_FUNCS")
         self.encoding_count = os.getenv("ENCODING_COUNT")
+        self.validation_method = os.getenv("VALIDATION_METHOD")
+        self.has_validation_method_or_not = self.has_validation_method()
         print(self, flush=True)
+
+    def has_validation_method(self):
+        """
+        判断是否有 validation method
+        :return:
+        """
+        if self.validation_method in ["ICING", "OPT", "BPT"]:
+            return True
+        else:
+            return False
 
     def __str__(self):
         """

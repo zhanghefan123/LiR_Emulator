@@ -15,6 +15,7 @@ class LiRConfigurator:
         """
         self.lir_enabled = env_loader.lir_enabled
         self.container_name = env_loader.container_name
+        self.has_validation_method_or_not = env_loader.has_validation_method_or_not
         self.netlink_client = ncm.NetlinkClient()
         self.interface_table_generator = itgm.InterfaceTableGenerator(
             path_of_name_to_lid_file=f"/configuration/lir/identifiers/{self.container_name}.conf",
@@ -36,11 +37,13 @@ class LiRConfigurator:
         :return:
         """
         if self.lir_enabled:
-            self.encoding_count_configurator.start()
+            if not self.has_validation_method_or_not:
+                self.encoding_count_configurator.start()
+            else:
+                pass
             self.bloom_filter_configurator.start()  # 注意一开始就要进行布隆过滤器的配置
             self.interface_table_generator.start()
             self.routing_table_generator.start()
             self.net_to_id_mapper.start()
-
         else:
             pass

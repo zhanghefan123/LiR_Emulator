@@ -31,6 +31,7 @@ class SatelliteManager:
                            f"NODE_TYPE={str(satellite.node_type)}",
                            f"NODE_ID={satellite.node_id}",
                            f"ENCODING_COUNT={self.config_loader.encoding_count}",
+                           f"VALIDATION_METHOD={self.config_loader.validation_method}",
                            f"DISPLAY=unix:0.0",
                            f"GDK_SCALE",
                            f"GDK_DPI_SCALE",

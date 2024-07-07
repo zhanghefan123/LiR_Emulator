@@ -8,6 +8,7 @@ from routing.lir.apps.types import types as tm
 from routing.lir.tables import routes_loader as rlm
 import time
 
+
 class UdpLiRHandler:
     def __init__(self, possible_destination_node_name_list: List[str],
                  destination_port: int,
@@ -125,18 +126,46 @@ class UdpLiRHandler:
         """
         destination_node_ids_in_str = [str(item) for item in destination_node_id_list]
         lir_destination_address = ".".join(destination_node_ids_in_str)
+
         while True:
-            send_message = ("f" * 100).encode()
-            msg_count = int(prompt(qm.QUESTION_FOR_MESSAGE_COUNT)["count"])
-            interval = float(prompt(qm.QUESTION_FOR_INTERVAL)["interval"])
-            for index in range(msg_count):
-                udp_socket.sendto(send_message, (lir_destination_address, self.destination_port))
-                time.sleep(interval)
+            pattern = prompt(qm.QUESTION_FOR_SEND_PATTERN)["pattern"]
+            if pattern == "single":
+                self.send_in_single(udp_socket, lir_destination_address)
+            elif pattern == "batch":
+                self.send_in_batch(udp_socket, lir_destination_address)
             continue_or_not = prompt(qm.QUESTION_FOR_CONTINUE)["continue"]
             if continue_or_not == "yes":
                 pass
             else:
                 break
+
+    def send_in_single(self, udp_socket: socket.socket, lir_destination_address: str):
+        """
+        进行逐个消息的发送，用于测试
+        :param udp_socket: udp socket
+        :param lir_destination_address: 目的地址
+        :return:
+        """
+        while True:
+            send_message = input("请输入要发送的内容: (quit to exit)")
+            if send_message == "quit":
+                break
+            else:
+                udp_socket.sendto(send_message.encode(), (lir_destination_address, self.destination_port))
+
+    def send_in_batch(self, udp_socket: socket.socket, lir_destination_address: str):
+        """
+        批量进行消息的发送，用于跑实验结果
+        :param udp_socket: udp socket
+        :param lir_destination_address: 目的地址
+        :return:
+        """
+        send_message = ("f" * 100).encode()
+        msg_count = int(prompt(qm.QUESTION_FOR_MESSAGE_COUNT)["count"])
+        interval = float(prompt(qm.QUESTION_FOR_INTERVAL)["interval"])
+        for index in range(msg_count):
+            udp_socket.sendto(send_message, (lir_destination_address, self.destination_port))
+            time.sleep(interval)
 
     def start(self):
         self.get_user_input()

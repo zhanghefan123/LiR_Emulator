@@ -7,6 +7,7 @@ lir:
   default_number_of_hash_funcs: 5
   listening_port: 30000
   encoding_count: 0
+  validation_method: BPT
   abs_dir_of_projects: /home/zhf/Projects/lir
   relative_dir_of_frr: lir_emulator/resources/routing/frr
   relative_dir_of_lir_identifiers: lir_emulator/resources/routing/lir/identifiers

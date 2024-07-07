@@ -84,5 +84,15 @@ QUESTION_FOR_CONTINUE = [
         "choices": ["yes", "no"]
     }
 ]
+
+QUESTION_FOR_SEND_PATTERN = [
+    {
+        "type": "list",
+        "name": "pattern",
+        "message": "请选择逐个[single]发送还是批量[batch]发送:",
+        "choices": ["single", "batch"]
+    }
+]
+
 # -------------- 各种不同的消息类型  --------------
 

@@ -19,6 +19,7 @@ class ConfigLoader:
         # ------------------ 卫星相关参数 ------------------
         # ------------------------- 网络相关参数 -------------------------
         self.encoding_count = None
+        self.validation_method = None
         self.local_ip_address = igm.IpGetter.get_host_ip()  # 本地 ip 地址
         self.docker_request_url = f"http://{self.local_ip_address}:2375"  # docker 请求地址
         self.listening_port = None
