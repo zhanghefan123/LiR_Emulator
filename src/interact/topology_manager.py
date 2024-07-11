@@ -22,7 +22,6 @@ POSSIBLE_COMMANDS = [
     "create",
     "start",
     "destroy",
-    "app",
     "exit"
 ]
 

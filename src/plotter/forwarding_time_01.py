@@ -81,6 +81,8 @@ class ForwardingTimePlotter:  # LiR Forward Time Consumption
                     pass  # 内核之中其他的输出行
             except ValueError:
                 print(line)
+        print(f"ip_forwarding_time:{np.average(self.ip_forwarding_time_list)} "
+              f"lir_reencoding_time:{np.average(self.lir_forwarding_time_list)}")
 
     def plot_distribution(self):
         plt.hist(self.lir_forwarding_time_list, bins=self.bins, color=Color.blue(), label="LiR (direct forwarding)",
@@ -102,23 +104,25 @@ class ForwardingTimePlotter:  # LiR Forward Time Consumption
         }
         plt.rc("font", **font)
         self.plot_distribution()
-        plt.xlabel(u"Time Consumption of Forwarding (\u03bcs)", fontsize=13)
-        plt.ylabel("Probability Density ($\\times10^{-4}$)", fontsize=13)
-        plt.xticks(np.arange(0, 14100, 2000), np.arange(0, 15, 2), fontsize=13)
-        plt.yticks(np.arange(0.0000, 0.0016, 0.0002), np.arange(0, 16, 2), fontsize=13)
-        plt.legend()
+        plt.xlabel(u"Time Consumption of Forwarding (\u03bcs)", fontsize=17)
+        plt.ylabel("Probability Density ($\\times10^{-4}$)", fontsize=17)
+        plt.xticks(np.arange(0, 14100, 2000), np.arange(0, 15, 2), fontsize=17)
+        plt.yticks(np.arange(0.0000, 0.0016, 0.0002), np.arange(0, 16, 2), fontsize=17)
+        plt.legend(fontsize=14)
         plt.tight_layout()
         with PdfPages(self.output_figure_name) as pdf:
             pdf.savefig()
 
 
 if __name__ == "__main__":
-    start = int(input("请输入起始值:"))
-    end = int(input("请输入终止值:"))
-    kern_file_name = input("请输入要分析的文件名:")
-    plot_file_name = input("请输入输出的pdf名:")
-    forwarding_time_plotter = ForwardingTimePlotter(kernel_log_file_path=f"../../resources/{kern_file_name}",
-                                                    output_figure_name=f"{plot_file_name}.pdf",
-                                                    start=start,
-                                                    end=end)
-    forwarding_time_plotter.plot_figure()
+    # start = int(input("请输入起始值:"))
+    # end = int(input("请输入终止值:"))
+    # kern_file_name = input("请输入要分析的文件名:")
+    # plot_file_name = input("请输入输出的pdf名:")
+    # forwarding_time_plotter = ForwardingTimePlotter(kernel_log_file_path=f"../../resources/{kern_file_name}",
+    #                                                 output_figure_name=f"{plot_file_name}.pdf",
+    #                                                 start=start,
+    #                                                 end=end)
+    # forwarding_time_plotter.plot_figure()
+    # ip_forwarding_time:8186.983 lir_reencoding_time:3161.2627
+    print((8186.983 - 3161.2627) / 8186.983)
